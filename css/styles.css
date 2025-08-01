@@ -6,9 +6,9 @@
 
 .arrow-image {
   position: absolute;
-  top: 60px;
-  left: 172px;
-  width: 138vh;
+  top: 29px;
+  left: 150px;
+  width: 145vh;
 }
 
 .changed-value {
@@ -28,7 +28,7 @@
 .data-container {
   display: flex;
   flex-direction: column;
-  margin-left: 50px;
+  margin-left: 30px;
 }
 
 .left-container {
@@ -58,7 +58,7 @@
   position: relative;
   display: flex;
   margin-left: 300px;
-  margin-top: 100px;
+  margin-top: 70px;
   gap: 80px;
 }
 
@@ -380,7 +380,7 @@ td {
   flex-direction: column;
   align-items: end;
   gap: 32px;
-  margin-top: 270px;
+  margin-top: 240px;
 }
 
 .cycle {

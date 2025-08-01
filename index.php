@@ -158,7 +158,7 @@
 
     <div class="right-container">
       <div class="input-container">
-        <span class="border-label-right">Ячейка ОЗУ и её значение</span>
+        <span class="border-label-right">Содержимое ячеек ОЗУ</span>
         <div class="input-table-container">
           <div class="virtual-container" id="memoryContainer">
             <table class="input-table" id="memoryTable">

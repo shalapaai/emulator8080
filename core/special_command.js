@@ -19,8 +19,8 @@ const SpecialCommands = {
           break;
             
         case 4:
-          currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-          currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+          currentCommandHex.textContent = toHex(bytes[0], 2);
+          currentCommandText.textContent = getCommandText(bytes[0]);
           break;
               
         case 5:
@@ -87,8 +87,8 @@ const SpecialCommands = {
           break;
             
         case 4:
-          currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-          currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+          currentCommandHex.textContent = toHex(bytes[0], 2);
+          currentCommandText.textContent = getCommandText(bytes[0]);
           break;
               
         case 5:
@@ -149,8 +149,8 @@ const SpecialCommands = {
           break;
             
         case 4:
-          currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-          currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+          currentCommandHex.textContent = toHex(bytes[0], 2);
+          currentCommandText.textContent = getCommandText(bytes[0]);
           break;
               
         case 5:
@@ -190,8 +190,8 @@ const SpecialCommands = {
           break;
             
         case 4:
-          currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-          currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+          currentCommandHex.textContent = toHex(bytes[0], 2);
+          currentCommandText.textContent = getCommandText(bytes[0]);
           break;
               
         case 5:
@@ -280,8 +280,8 @@ const SpecialCommands = {
           break;
             
         case 4:
-          currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-          currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+          currentCommandHex.textContent = toHex(bytes[0], 2);
+          currentCommandText.textContent = getCommandText(bytes[0]);
           break;
               
         case 5:
@@ -349,8 +349,8 @@ const SpecialCommands = {
           break;
 
         case 4:
-          currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-          currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+          currentCommandHex.textContent = toHex(bytes[0], 2);
+          currentCommandText.textContent = getCommandText(bytes[0]);
           break;
 
         case 5:
@@ -387,8 +387,8 @@ const SpecialCommands = {
           break;
 
         case 4:
-          currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-          currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+          currentCommandHex.textContent = toHex(bytes[0], 2);
+          currentCommandText.textContent = getCommandText(bytes[0]);
           break;
 
         case 5:
@@ -424,8 +424,8 @@ const SpecialCommands = {
           break;
 
         case 4:
-          currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-          currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+          currentCommandHex.textContent = toHex(bytes[0], 2);
+          currentCommandText.textContent = getCommandText(bytes[0]);
           break;
 
         case 5:
@@ -511,8 +511,8 @@ const SpecialCommands = {
           break;
 
         case 4:
-          currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-          currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+          currentCommandHex.textContent = toHex(bytes[0], 2);
+          currentCommandText.textContent = getCommandText(bytes[0]);
           break;
 
         case 5:
@@ -619,8 +619,8 @@ const SpecialCommands = {
           break;
             
         case 4:
-          currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-          currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+          currentCommandHex.textContent = toHex(bytes[0], 2);
+          currentCommandText.textContent = getCommandText(bytes[0]);
           break;
             
         case 5:
@@ -692,8 +692,9 @@ const SpecialCommands = {
           cpu.registers.L = cpu.registers.Z;
           break;
       }
-    }
+    }  
   }
+  
 }
     
 // Функция для проверки, является ли команда специальной
@@ -705,6 +706,8 @@ function isSpecialCommand(opcode) {
 function executeSpecialCommand(cpu, bytes) {
   const opcode = bytes[0];
   const command = SpecialCommands[opcode];
+
+  updateUIFromCPU();
 
   if (command) {
     command.execute(cpu, bytes);
@@ -760,8 +763,8 @@ function executePush(cpu, bytes, highReg, lowReg, getLowValue = null) {
             break;
 
         case 4:
-            currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-            currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+            currentCommandHex.textContent = toHex(bytes[0], 2);
+            currentCommandText.textContent = getCommandText(bytes[0]);
             break;
 
         case 5:
@@ -817,8 +820,8 @@ function executePop(cpu, bytes, lowReg, highReg) {
           break;
             
         case 4:
-          currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-          currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+          currentCommandHex.textContent = toHex(bytes[0], 2);
+          currentCommandText.textContent = getCommandText(bytes[0]);
           break;
             
         case 5:
@@ -874,8 +877,8 @@ function executePopPSW(cpu, bytes) {
             break;
             
         case 4:
-            currentCommandHex.textContent = `Рег. команд: ${toHex(bytes[0], 2)}`;
-            currentCommandText.textContent = `Д/Ш команд: ${getCommandText(bytes[0])}`;
+            currentCommandHex.textContent = toHex(bytes[0], 2);
+            currentCommandText.textContent = getCommandText(bytes[0]);
             break;
             
         case 5:

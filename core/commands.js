@@ -359,7 +359,7 @@ function executeCycle() {
             return;
         }
     }
-
+    
     updateCycleDisplay(executionState.currentCycle);
 
     const { currentCycle, currentCommandRow, commandLength } = executionState;
@@ -419,6 +419,7 @@ function executeCycle() {
             case 10: handleCycle10(executionState.nextCommandRow, commandLength); break;
         }
     }
+    updateUIFromCPU();
 }
 
 // Вспомогательные функции для обработки тактов
@@ -822,8 +823,6 @@ function updateUIFromCPU() {
         dataBuf.classList.add('changed-value');
     }
 
-    // Обновляем отображение текущего такта
-    updateCycleDisplay(cpu.currentCycle);
 
     // Сохраняем текущие значения для следующего сравнения
     previousRegisters = { ...cpu.registers };
