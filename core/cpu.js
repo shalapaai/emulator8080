@@ -827,7 +827,7 @@ class CPU8080 {
           }
 
           if (shouldJump) {
-            const newPC = ((bytes[2] << 8) | this.registers.Z) - 1;
+            const newPC = ((bytes[2] << 8) | this.registers.Z);
             this.setPC(newPC);
           }
         }
@@ -838,7 +838,7 @@ class CPU8080 {
           this.registers.Z = bytes[1]; // Младший байт адреса
         } else {
           if (this.flags.S) { // Если флаг S=1 (отрицательный результат)
-            const newPC = ((bytes[2] << 8) | this.registers.Z) - 1;
+            const newPC = ((bytes[2] << 8) | this.registers.Z);
             this.setPC(newPC);
           }
         }
@@ -849,7 +849,7 @@ class CPU8080 {
           this.registers.Z = bytes[1]; // Младший байт адреса
         } else {
           if (!this.flags.S) { // Если флаг S=0 (положительный результат)
-            const newPC = ((bytes[2] << 8) | this.registers.Z) - 1;
+            const newPC = ((bytes[2] << 8) | this.registers.Z);
             this.setPC(newPC);
           }
         }
@@ -887,7 +887,7 @@ class CPU8080 {
           this.registers.SP -= 2;
 
           // Переход по адресу
-          const newPC = ((bytes[2] << 8) | this.registers.Z) - 1;
+          const newPC = ((bytes[2] << 8) | this.registers.Z);
           this.setPC(newPC);
         }
         break;
@@ -924,7 +924,7 @@ class CPU8080 {
             this.registers.SP -= 2;
 
             // Переход по адресу
-            const newPC = ((bytes[2] << 8) | this.registers.Z) - 1;
+            const newPC = ((bytes[2] << 8) | this.registers.Z);
             this.setPC(newPC);
           }
         }
