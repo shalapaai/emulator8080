@@ -13,7 +13,8 @@
       <span class="border-label-left">Состояния</span>
       <div class="cycle">
         <div class="data-block">
-          <p id="currentCycle">Текущий такт: -</p>
+          <p>Текущий такт</p>
+          <p id="currentCycle">-</p>
         </div>
       </div>
       <div class="data-container">
@@ -529,8 +530,8 @@
 
   <script src="./core/opcode_map.js" defer></script>
   <script src="./core/cpu.js" defer></script>
-  <script src="./core/mains.js" defer></script>
-  <script src="./core/commands.js" defer></script>
+  <script src="./core/main.js" defer></script>
+  <script src="./core/command.js" defer></script>
   <script src="./core/special_command.js" defer></script>
   <script src="./core/modal_window.js" defer></script>
 </body>

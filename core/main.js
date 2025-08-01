@@ -804,9 +804,9 @@ let currentCycleDisplay = 0;
 function updateCycleDisplay(cycle) {
   const cycleElement = document.getElementById('currentCycle');
   if (cycle === 0) {
-    cycleElement.textContent = 'Текущий такт: -';
+    cycleElement.textContent = '-';
   } else {
-    cycleElement.textContent = `Текущий такт: ${cycle}`;
+    cycleElement.textContent = cycle;
     // Анимация обновления
     cycleElement.style.transform = 'scale(1.1)';
     setTimeout(() => {
