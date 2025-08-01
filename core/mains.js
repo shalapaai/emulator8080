@@ -12,7 +12,7 @@ cpu.onMemoryWrite = (address) => {
         valInput.value = toHex(memoryValue, 2);
       }
     }
-    
+
     const cmdInput = row.querySelector('input[data-col="cmd"]');
     if (cmdInput) {
       const opcode = cpu.readMemory(address);
@@ -21,7 +21,7 @@ cpu.onMemoryWrite = (address) => {
       cmdInput.value = mnemonic;
     }
   }
-  
+
   refreshVisibleRows(); // Обновляем видимые строки
 };
 
@@ -48,7 +48,7 @@ function setCellValue(row, col, text) {
   const input = document.querySelector(selector);
   if (input && input.value !== text) {
     input.value = text;
-    
+
     // Обновляем память CPU
     if (col === "val") {
       const bytes = text.split(/\s+/);
@@ -70,94 +70,94 @@ function validateArg(arg) {
 }
 
 function saveRowStateBeforeRemove(rowIndex, rowElement) {
-    const valInput = rowElement.querySelector('input[data-col="val"]');
-    const cmdInput = rowElement.querySelector('input[data-col="cmd"]');
-    
-    cpu.rowStates[rowIndex] = cpu.rowStates[rowIndex] || {};
-    cpu.rowStates[rowIndex].valInputValue = valInput?.value || "00";
-    cpu.rowStates[rowIndex].cmdInputValue = cmdInput?.value || "NOP";
-    cpu.rowStates[rowIndex].readonly = rowElement.classList.contains("readonly-row");
-    cpu.rowStates[rowIndex].owner = rowElement.dataset.owner || null;
-    cpu.rowStates[rowIndex].highlighted = rowElement.classList.contains("highlighted-command") || 
-                                         rowElement.classList.contains("highlighted-argument");
-    cpu.rowStates[rowIndex].highlightType = rowElement.classList.contains("highlighted-command") ? 
-                                           "command" : 
-                                           (rowElement.classList.contains("highlighted-argument") ? "argument" : null);
+  const valInput = rowElement.querySelector('input[data-col="val"]');
+  const cmdInput = rowElement.querySelector('input[data-col="cmd"]');
+
+  cpu.rowStates[rowIndex] = cpu.rowStates[rowIndex] || {};
+  cpu.rowStates[rowIndex].valInputValue = valInput?.value || "00";
+  cpu.rowStates[rowIndex].cmdInputValue = cmdInput?.value || "NOP";
+  cpu.rowStates[rowIndex].readonly = rowElement.classList.contains("readonly-row");
+  cpu.rowStates[rowIndex].owner = rowElement.dataset.owner || null;
+  cpu.rowStates[rowIndex].highlighted = rowElement.classList.contains("highlighted-command") ||
+    rowElement.classList.contains("highlighted-argument");
+  cpu.rowStates[rowIndex].highlightType = rowElement.classList.contains("highlighted-command") ?
+    "command" :
+    (rowElement.classList.contains("highlighted-argument") ? "argument" : null);
 }
 
 function restoreRowState(rowIndex, rowElement) {
-    const state = cpu.rowStates[rowIndex];
-    if (!state) return;
-    
-    const valInput = rowElement.querySelector('input[data-col="val"]');
-    const cmdInput = rowElement.querySelector('input[data-col="cmd"]');
-    
-    if (valInput && state.valInputValue) {
-        valInput.value = state.valInputValue;
-    }
-    
-    if (cmdInput && state.cmdInputValue) {
-        cmdInput.value = state.cmdInputValue;
-    }
-    
-    if (state.readonly) {
-        rowElement.classList.add("readonly-row");
-        rowElement.querySelectorAll("input").forEach(input => {
-            input.readOnly = true;
-            input.tabIndex = -1;
-        });
-    }
-    
-    if (state.owner) {
-        rowElement.dataset.owner = state.owner;
-    }
-    
-    if (state.highlighted) {
-        rowElement.classList.add(state.highlightType === "command" ? 
-                               "highlighted-command" : 
-                               "highlighted-argument");
-    }
+  const state = cpu.rowStates[rowIndex];
+  if (!state) return;
+
+  const valInput = rowElement.querySelector('input[data-col="val"]');
+  const cmdInput = rowElement.querySelector('input[data-col="cmd"]');
+
+  if (valInput && state.valInputValue) {
+    valInput.value = state.valInputValue;
+  }
+
+  if (cmdInput && state.cmdInputValue) {
+    cmdInput.value = state.cmdInputValue;
+  }
+
+  if (state.readonly) {
+    rowElement.classList.add("readonly-row");
+    rowElement.querySelectorAll("input").forEach(input => {
+      input.readOnly = true;
+      input.tabIndex = -1;
+    });
+  }
+
+  if (state.owner) {
+    rowElement.dataset.owner = state.owner;
+  }
+
+  if (state.highlighted) {
+    rowElement.classList.add(state.highlightType === "command" ?
+      "highlighted-command" :
+      "highlighted-argument");
+  }
 }
 
 // Помечает строку как read-only
 function markRowReadonly(rowIndex, ownerIndex) {
-    const row = tableBody.querySelector(`tr[data-row="${rowIndex}"]`);
-    if (!row) return;
+  const row = tableBody.querySelector(`tr[data-row="${rowIndex}"]`);
+  if (!row) return;
 
-    // Проверяем, что строка действительно является аргументом команды
-    const ownerRow = tableBody.querySelector(`tr[data-row="${ownerIndex}"]`);
-    if (!ownerRow) return;
+  // Проверяем, что строка действительно является аргументом команды
+  const ownerRow = tableBody.querySelector(`tr[data-row="${ownerIndex}"]`);
+  if (!ownerRow) return;
 
-    const ownerOpcode = cpu.readMemory(ownerIndex);
-    const ownerMnemonic = reverseOpcodeMap[toHex(ownerOpcode, 2)] || "";
-    const ownerCommand = ownerMnemonic.split(" ")[0];
+  const ownerOpcode = cpu.readMemory(ownerIndex);
+  const ownerMnemonic = reverseOpcodeMap[toHex(ownerOpcode, 2)] || "";
+  const ownerCommand = ownerMnemonic.split(" ")[0];
 
-    // Если текущая строка не является аргументом команды, не помечаем её как readonly
-    if (
-        (commands8BitTail.includes(ownerCommand) && rowIndex !== ownerIndex + 1) ||
-        (commands16BitTail.includes(ownerCommand) && !(rowIndex === ownerIndex + 1 || rowIndex === ownerIndex + 2))
-    ) {
-        return;
-    }
+  // Если текущая строка не является аргументом команды, не помечаем её как readonly
+  if (
+    (commands8BitTail.includes(ownerCommand) && rowIndex !== ownerIndex + 1) ||
+    (commands16BitTail.includes(ownerCommand) && !(rowIndex === ownerIndex + 1 || rowIndex === ownerIndex + 2))
+  ) {
+    return;
+  }
 
-    // Если строка уже принадлежит другому владельцу, освобождаем её
-    const currentOwner = row.dataset.owner;
-    if (currentOwner && parseInt(currentOwner, 10) !== ownerIndex) {
-        unmarkOwnedRows(parseInt(currentOwner, 10));
-    }
+  // Если строка уже принадлежит другому владельцу, освобождаем её
+  const currentOwner = row.dataset.owner;
+  if (currentOwner && parseInt(currentOwner, 10) !== ownerIndex) {
+    unmarkOwnedRows(parseInt(currentOwner, 10));
+  }
 
-    row.classList.add("readonly-row");
-    row.dataset.owner = ownerIndex;
+  row.classList.add("readonly-row");
+  row.dataset.owner = ownerIndex;
 
-    row.querySelectorAll("input").forEach(input => {
-        input.readOnly = true;
-        input.tabIndex = -1;
-    });
+  row.querySelectorAll("input").forEach(input => {
+    input.readOnly = true;
+    input.tabIndex = -1;
+  });
 
-    // Обновляем состояние в rowStates
-    cpu.rowStates[rowIndex] = cpu.rowStates[rowIndex] || {};
-    cpu.rowStates[rowIndex].readonly = true;
-    cpu.rowStates[rowIndex].owner = ownerIndex;
+  // Обновляем состояние в rowStates
+  cpu.rowStates[rowIndex] = cpu.rowStates[rowIndex] || {};
+  cpu.rowStates[rowIndex].readonly = true;
+  cpu.rowStates[rowIndex].owner = ownerIndex;
 }
 
 // Освобождает занятые строки
@@ -193,7 +193,7 @@ function unclaimIfOccupied(row, maxOffset = 2) {
 
 function unmarkOwnedRows(ownerIndex) {
   tableBody.querySelectorAll(`tr[data-owner="${ownerIndex}"]`).forEach(row => {
-    
+
     const idx = parseInt(row.dataset.row, 10);
     row.classList.remove("readonly-row");
     delete row.dataset.owner;
@@ -251,13 +251,13 @@ clearAllCommandsBtn.addEventListener("click", () => {
   cpu.memory.fill(0x00);
   cpu.rowStates = {}; // Очищаем состояния строк
   cpu.resetBuffers(); // Сбрасываем буферные регистры и PC
-  
+
   // Обновляем отображение буферов в UI
   document.querySelector("#regBuf1").textContent = `00`;
   document.querySelector("#regBuf2").textContent = `00`;
   document.querySelector("#adrBuf").textContent = `0000`;
   document.querySelector("#dataBuf").textContent = `00`;
-  
+
   // Очищаем все строки таблицы
   for (let i = 0; i < numRows; i++) {
     const row = tableBody.querySelector(`tr[data-row="${i}"]`);
@@ -265,18 +265,18 @@ clearAllCommandsBtn.addEventListener("click", () => {
       // Снимаем все классы и атрибуты
       row.classList.remove("readonly-row", "highlighted-command");
       delete row.dataset.owner;
-      
+
       // Получаем поля ввода
       const valInput = row.querySelector('input[data-col="val"]');
       const cmdInput = row.querySelector('input[data-col="cmd"]');
-      
+
       if (valInput) {
         valInput.value = "00";
         cpu.writeMemory(i, 0x00); // Инициализируем память
         valInput.readOnly = false;
         valInput.tabIndex = 0;
       }
-      
+
       if (cmdInput) {
         cmdInput.value = "NOP"; // Устанавливаем NOP вместо пустой строки
         cpu.writeMemory(i, 0x00); // Инициализируем память
@@ -295,121 +295,121 @@ const totalRows = 0x10000; // Количество строк (00-FF)
 function initVirtualTable() {
   const container = document.getElementById('memoryContainer');
   const tableBody = document.getElementById('memoryTableBody');
-  
+
   // container.style.height = `calc(100vh - 250px)`;
   tableBody.style.height = `${totalRows * ROW_HEIGHT}px`;
-  
+
   container.addEventListener('scroll', renderVisibleRows);
   renderVisibleRows();
 }
 
 /// Рендеринг видимых строк
 function renderVisibleRows() {
-    const container = document.getElementById('memoryContainer');
-    const tableBody = document.getElementById('memoryTableBody');
-    
-    const scrollTop = container.scrollTop;
-    const visibleStart = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - BUFFER_ROWS);
-    const visibleEnd = Math.min(
-        totalRows, 
-        Math.ceil((scrollTop + container.clientHeight) / ROW_HEIGHT) + BUFFER_ROWS
-    );
-    
-    // Удаляем строки вне видимой области
-    const existingRows = tableBody.querySelectorAll('.virtual-row');
-    existingRows.forEach(row => {
-        const rowIndex = parseInt(row.dataset.row);
-        if (rowIndex < visibleStart || rowIndex > visibleEnd) {
-            // Сохраняем состояние перед удалением
-            saveRowStateBeforeRemove(rowIndex, row);
-            row.remove();
-        }
-    });
-    
-    // Добавляем новые строки для видимой области
-    for (let i = visibleStart; i < visibleEnd; i++) {
-        // Проверяем, не существует ли уже эта строка
-        if (!tableBody.querySelector(`tr[data-row="${i}"]`)) {
-            const row = createTableRow(i);
-            row.style.position = 'absolute';
-            row.style.top = `${i * ROW_HEIGHT}px`;
-            tableBody.appendChild(row);
-            
-            // Восстанавливаем состояние строки
-            restoreRowState(i, row);
-        }
+  const container = document.getElementById('memoryContainer');
+  const tableBody = document.getElementById('memoryTableBody');
+
+  const scrollTop = container.scrollTop;
+  const visibleStart = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - BUFFER_ROWS);
+  const visibleEnd = Math.min(
+    totalRows,
+    Math.ceil((scrollTop + container.clientHeight) / ROW_HEIGHT) + BUFFER_ROWS
+  );
+
+  // Удаляем строки вне видимой области
+  const existingRows = tableBody.querySelectorAll('.virtual-row');
+  existingRows.forEach(row => {
+    const rowIndex = parseInt(row.dataset.row);
+    if (rowIndex < visibleStart || rowIndex > visibleEnd) {
+      // Сохраняем состояние перед удалением
+      saveRowStateBeforeRemove(rowIndex, row);
+      row.remove();
     }
+  });
+
+  // Добавляем новые строки для видимой области
+  for (let i = visibleStart; i < visibleEnd; i++) {
+    // Проверяем, не существует ли уже эта строка
+    if (!tableBody.querySelector(`tr[data-row="${i}"]`)) {
+      const row = createTableRow(i);
+      row.style.position = 'absolute';
+      row.style.top = `${i * ROW_HEIGHT}px`;
+      tableBody.appendChild(row);
+
+      // Восстанавливаем состояние строки
+      restoreRowState(i, row);
+    }
+  }
 }
 
 // Функция создания строки (аналогична вашей, но для одной строки)
 function createTableRow(rowIndex) {
-    const row = document.createElement("tr");
-    row.className = "virtual-row";
-    row.dataset.row = rowIndex;
+  const row = document.createElement("tr");
+  row.className = "virtual-row";
+  row.dataset.row = rowIndex;
 
-    // Создаем ячейку с адресом
-    const addrCell = document.createElement("td");
-    addrCell.textContent = toHex(rowIndex, 4);
+  // Создаем ячейку с адресом
+  const addrCell = document.createElement("td");
+  addrCell.textContent = toHex(rowIndex, 4);
 
-    // Создаем поле ввода для машинного кода
-    const valInput = createInput(rowIndex, "val", 8);
-    valInput.value = "00"; // Значение по умолчанию
+  // Создаем поле ввода для машинного кода
+  const valInput = createInput(rowIndex, "val", 8);
+  valInput.value = "00"; // Значение по умолчанию
 
-    // Создаем поле ввода для команды
-    const cmdInput = createInput(rowIndex, "cmd");
-    cmdInput.value = "NOP"; // Значение по умолчанию
+  // Создаем поле ввода для команды
+  const cmdInput = createInput(rowIndex, "cmd");
+  cmdInput.value = "NOP"; // Значение по умолчанию
 
-    // Если есть сохраненное состояние — восстанавливаем его
-    const state = cpu.rowStates[rowIndex];
-    if (state) {
-      valInput.value = state.valInputValue ?? toHex(cpu.readMemory(rowIndex), 2);
-      cmdInput.value = state.cmdInputValue ?? (reverseOpcodeMap[toHex(cpu.readMemory(rowIndex), 2)] || "NOP");
-    } else {
-      // Иначе — заполняем из памяти
-      const memoryValue = cpu.readMemory(rowIndex);
-      valInput.value = toHex(memoryValue, 2);
-      const opcode = memoryValue;
-      const mnemonic = reverseOpcodeMap[toHex(opcode, 2)] || "NOP";
-      cmdInput.value = mnemonic;
+  // Если есть сохраненное состояние — восстанавливаем его
+  const state = cpu.rowStates[rowIndex];
+  if (state) {
+    valInput.value = state.valInputValue ?? toHex(cpu.readMemory(rowIndex), 2);
+    cmdInput.value = state.cmdInputValue ?? (reverseOpcodeMap[toHex(cpu.readMemory(rowIndex), 2)] || "NOP");
+  } else {
+    // Иначе — заполняем из памяти
+    const memoryValue = cpu.readMemory(rowIndex);
+    valInput.value = toHex(memoryValue, 2);
+    const opcode = memoryValue;
+    const mnemonic = reverseOpcodeMap[toHex(opcode, 2)] || "NOP";
+    cmdInput.value = mnemonic;
+  }
+
+  // Обработчик фокуса для поля значения
+  valInput.addEventListener("focus", () => {
+    if (valInput.value === "00") {
+      valInput.value = "";
+      cmdInput.value = "";
     }
+  });
 
-    // Обработчик фокуса для поля значения
-    valInput.addEventListener("focus", () => {
-        if (valInput.value === "00") {
-            valInput.value = "";
-            cmdInput.value = "";
-        }
-    });
+  // Обработчик фокуса для поля команды
+  cmdInput.addEventListener("focus", () => {
+    if (cmdInput.value === "NOP") {
+      valInput.value = "";
+      cmdInput.value = "";
+    }
+  });
 
-    // Обработчик фокуса для поля команды
-    cmdInput.addEventListener("focus", () => {
-        if (cmdInput.value === "NOP") {
-            valInput.value = "";
-            cmdInput.value = "";
-        }
-    });
+  // Обработчик потери фокуса для поля значения
+  valInput.addEventListener("blur", () => {
+    if (!valInput.value.trim()) {
+      valInput.value = "00";
+      cmdInput.value = "NOP";
+    }
+  });
 
-    // Обработчик потери фокуса для поля значения
-    valInput.addEventListener("blur", () => {
-        if (!valInput.value.trim()) {
-            valInput.value = "00";
-            cmdInput.value = "NOP";
-        }
-    });
+  // Обработчик потери фокуса для поля команды
+  cmdInput.addEventListener("blur", () => {
+    if (!cmdInput.value.trim()) {
+      valInput.value = "00";
+      cmdInput.value = "NOP";
+    }
+  });
 
-    // Обработчик потери фокуса для поля команды
-    cmdInput.addEventListener("blur", () => {
-        if (!cmdInput.value.trim()) {
-            valInput.value = "00";
-            cmdInput.value = "NOP";
-        }
-    });
-
-    // Обработчик ввода для поля значения
-    // Обработчик ввода для поля значения
-valInput.addEventListener("input", () => {
+  // Обработчик ввода для поля значения
+  // Обработчик ввода для поля значения
+  valInput.addEventListener("input", () => {
     const row = parseInt(valInput.dataset.row, 10);
-    
+
     // Сбрасываем все состояния для этой строки и следующих
     unclaimIfOccupied(row);
     unmarkOwnedRows(row);
@@ -417,82 +417,82 @@ valInput.addEventListener("input", () => {
     // Обновляем память CPU
     const bytes = valInput.value.toUpperCase().split(/\s+/);
     bytes.forEach((byte, i) => {
-        if (byte.length === 2) {
-            const value = parseInt(byte, 16);
-            if (!isNaN(value)) {
-                cpu.writeMemory(row + i, value);
-            }
+      if (byte.length === 2) {
+        const value = parseInt(byte, 16);
+        if (!isNaN(value)) {
+          cpu.writeMemory(row + i, value);
         }
+      }
     });
 
     cmdInput.value = "";
 
     const [code, arg0, arg1] = valInput.value.toUpperCase().split(" ");
-    
+
     if (code.length !== 2) return;
 
     const mnemonic = reverseOpcodeMap[code];
     if (!mnemonic) return;
 
     const [command, args] = mnemonic.split(" ");
-    
+
     valInput.value = valInput.value.toUpperCase();
     cmdInput.value = mnemonic;
 
     // Только для команд с аргументами помечаем следующие строки как readonly
     if (commands8BitTail.includes(command)) {
-        const data = validateArg(arg0)
-            ? arg0
-            : document.querySelector(`input[data-row="${row + 1}"][data-col="val"]`)?.value.toUpperCase();
+      const data = validateArg(arg0)
+        ? arg0
+        : document.querySelector(`input[data-row="${row + 1}"][data-col="val"]`)?.value.toUpperCase();
 
-        if (validateArg(data)) {
-            const formattedCmd = mnemonic.replace("d8", data);
-            cmdInput.value = formattedCmd;
+      if (validateArg(data)) {
+        const formattedCmd = mnemonic.replace("d8", data);
+        cmdInput.value = formattedCmd;
 
-            if (valInput.value.length >= 5 && !valInput.value.endsWith(' ')) {
-                valInput.value = code;
-            }
-            
-            setCellValue(row + 1, "val", data);
-
-            // Помечаем только следующий байт как readonly, если это аргумент текущей команды
-            markRowReadonly(row + 1, row);
+        if (valInput.value.length >= 5 && !valInput.value.endsWith(' ')) {
+          valInput.value = code;
         }
+
+        setCellValue(row + 1, "val", data);
+
+        // Помечаем только следующий байт как readonly, если это аргумент текущей команды
+        markRowReadonly(row + 1, row);
+      }
     } else if (commands16BitTail.includes(command)) {
-        const lo = validateArg(arg0)
-            ? arg0
-            : document.querySelector(`input[data-row="${row + 1}"][data-col="val"]`)?.value.toUpperCase();
-        const hi = validateArg(arg1)
-            ? arg1
-            : document.querySelector(`input[data-row="${row + 2}"][data-col="val"]`)?.value.toUpperCase();
+      const lo = validateArg(arg0)
+        ? arg0
+        : document.querySelector(`input[data-row="${row + 1}"][data-col="val"]`)?.value.toUpperCase();
+      const hi = validateArg(arg1)
+        ? arg1
+        : document.querySelector(`input[data-row="${row + 2}"][data-col="val"]`)?.value.toUpperCase();
 
-        if (validateArg(lo) && validateArg(hi)) {
-            const formattedCmd = `${command} ${args.replace(/d16|a16/, hi + lo)}`;
-            cmdInput.value = formattedCmd;
+      if (validateArg(lo) && validateArg(hi)) {
+        const formattedCmd = `${command} ${args.replace(/d16|a16/, hi + lo)}`;
+        cmdInput.value = formattedCmd;
 
-            setCellValue(row + 1, "val", lo);        
-            
-            // Помечаем только следующие 2 байта как readonly, если они аргументы текущей команды
-            markRowReadonly(row + 1, row);
-            markRowReadonly(row + 2, row);
-            
-            if (valInput.value.length >= 8 && !valInput.value.endsWith(' ')) {
-                valInput.value = code;
-                setCellValue(row + 2, "val", hi);
-            }
+        setCellValue(row + 1, "val", lo);
+
+        // Помечаем только следующие 2 байта как readonly, если они аргументы текущей команды
+        markRowReadonly(row + 1, row);
+        markRowReadonly(row + 2, row);
+
+        if (valInput.value.length >= 8 && !valInput.value.endsWith(' ')) {
+          valInput.value = code;
+          setCellValue(row + 2, "val", hi);
         }
+      }
     }
-    
-    saveRowState(row, valInput.value, cmdInput.value, { readonly: valInput.readOnly, owner: cpu.rowStates[row]?.owner });
-});
 
-// Обработчик ввода для поля команды
-cmdInput.addEventListener("input", (e) => {
+    saveRowState(row, valInput.value, cmdInput.value, { readonly: valInput.readOnly, owner: cpu.rowStates[row]?.owner });
+  });
+
+  // Обработчик ввода для поля команды
+  cmdInput.addEventListener("input", (e) => {
     const row = parseInt(e.target.dataset.row, 10);
-    
+
     // Проверяем, не является ли текущая строка readonly
     if (cpu.rowStates[row]?.readonly) {
-        return; // Не обрабатываем ввод для readonly строк
+      return; // Не обрабатываем ввод для readonly строк
     }
 
     const inputText = cmdInput.value.replace(/,\s+/g, ",").trim();
@@ -509,117 +509,117 @@ cmdInput.addEventListener("input", (e) => {
 
     const mviMatch = inputText.match(/^MVI\s+([A-Z]),([0-9A-F]{2})$/i);
     if (mviMatch) {
-        const fullMnemonic = `MVI ${mviMatch[1].toUpperCase()},d8`;
-        const code = opcodeMap[fullMnemonic];
-        if (code) {
-            setCellValue(row, "val", code);
-            setCellValue(row + 1, "val", mviMatch[2]);
+      const fullMnemonic = `MVI ${mviMatch[1].toUpperCase()},d8`;
+      const code = opcodeMap[fullMnemonic];
+      if (code) {
+        setCellValue(row, "val", code);
+        setCellValue(row + 1, "val", mviMatch[2]);
 
-            markRowReadonly(row + 1, row);
+        markRowReadonly(row + 1, row);
 
-            cmdInput.value = `MVI ${mviMatch[1].toUpperCase()},${mviMatch[2]}`;
+        cmdInput.value = `MVI ${mviMatch[1].toUpperCase()},${mviMatch[2]}`;
 
-            return;
-        }
+        return;
+      }
     }
 
     if (commands8BitTail.includes(command) && data?.length === 2) {
-        const code = opcodeMap[`${command} d8`];
-        if (code) {
-            setCellValue(row, "val", code);
-            setCellValue(row + 1, "val", data);
+      const code = opcodeMap[`${command} d8`];
+      if (code) {
+        setCellValue(row, "val", code);
+        setCellValue(row + 1, "val", data);
 
-            markRowReadonly(row + 1, row);
+        markRowReadonly(row + 1, row);
 
-            cmdInput.value = `${command} ${data}`;
+        cmdInput.value = `${command} ${data}`;
 
-            return;
-        }
+        return;
+      }
     }
 
     const lxiMatch = inputText.match(/^(\w+)\s+([A-Z]{1,2}),(\w{4})$/i);
     if (lxiMatch) {
-        const fullMnemonic = `${lxiMatch[1].toUpperCase()} ${lxiMatch[2].toUpperCase()},d16`;
-        const code = opcodeMap[fullMnemonic];
-        const data = lxiMatch[3].toUpperCase();
-        if (code && data.length === 4) {
-            setCellValue(row, "val", code);
-            setCellValue(row + 1, "val", data.slice(2, 4));
-            setCellValue(row + 2, "val", data.slice(0, 2));
+      const fullMnemonic = `${lxiMatch[1].toUpperCase()} ${lxiMatch[2].toUpperCase()},d16`;
+      const code = opcodeMap[fullMnemonic];
+      const data = lxiMatch[3].toUpperCase();
+      if (code && data.length === 4) {
+        setCellValue(row, "val", code);
+        setCellValue(row + 1, "val", data.slice(2, 4));
+        setCellValue(row + 2, "val", data.slice(0, 2));
 
-            markRowReadonly(row + 1, row);
-            markRowReadonly(row + 2, row);
+        markRowReadonly(row + 1, row);
+        markRowReadonly(row + 2, row);
 
-            cmdInput.value = `${lxiMatch[1]} ${lxiMatch[2]},${data}`;
+        cmdInput.value = `${lxiMatch[1]} ${lxiMatch[2]},${data}`;
 
-            return;
-        }
+        return;
+      }
     }
 
     if (commands16BitTail.includes(command) && data?.length === 4) {
-        const code = opcodeMap[`${command} a16`];
-        if (code) {
-            setCellValue(row, "val", code);
-            setCellValue(row + 1, "val", data.slice(2, 4));
-            setCellValue(row + 2, "val", data.slice(0, 2));
+      const code = opcodeMap[`${command} a16`];
+      if (code) {
+        setCellValue(row, "val", code);
+        setCellValue(row + 1, "val", data.slice(2, 4));
+        setCellValue(row + 2, "val", data.slice(0, 2));
 
-            markRowReadonly(row + 1, row);
-            markRowReadonly(row + 2, row);
+        markRowReadonly(row + 1, row);
+        markRowReadonly(row + 2, row);
 
-            cmdInput.value = `${command} ${data}`;
-        }
+        cmdInput.value = `${command} ${data}`;
+      }
     }
 
     saveRowState(row, valInput.value, cmdInput.value, { readonly: valInput.readOnly, owner: cpu.rowStates[row]?.owner });
     valInput.value = "";
-});
+  });
 
-    // Обработчики навигации по таблице
-    [valInput, cmdInput].forEach(input => {
-        input.addEventListener("keydown", (e) => {
-            const row = parseInt(input.dataset.row);
-            const col = input.dataset.col;
-            let nextRow = row;
-            let nextCol = col;
+  // Обработчики навигации по таблице
+  [valInput, cmdInput].forEach(input => {
+    input.addEventListener("keydown", (e) => {
+      const row = parseInt(input.dataset.row);
+      const col = input.dataset.col;
+      let nextRow = row;
+      let nextCol = col;
 
-            if (e.key === "Enter" || (e.key === "ArrowDown" && e.ctrlKey)) {
-                nextRow = findVisibleRowBelow(row);
-            } else if (e.key === "ArrowUp" && e.ctrlKey) {
-                nextRow = findVisibleRowAbove(row);
-            } else if (e.key === "ArrowRight" && e.ctrlKey) {
-                nextCol = col === "val" ? "cmd" : null;
-            } else if (e.key === "ArrowLeft" && e.ctrlKey) {
-                nextCol = col === "cmd" ? "val" : null;
-            } else return;
+      if (e.key === "Enter" || (e.key === "ArrowDown" && e.ctrlKey)) {
+        nextRow = findVisibleRowBelow(row);
+      } else if (e.key === "ArrowUp" && e.ctrlKey) {
+        nextRow = findVisibleRowAbove(row);
+      } else if (e.key === "ArrowRight" && e.ctrlKey) {
+        nextCol = col === "val" ? "cmd" : null;
+      } else if (e.key === "ArrowLeft" && e.ctrlKey) {
+        nextCol = col === "cmd" ? "val" : null;
+      } else return;
 
-            e.preventDefault();
+      e.preventDefault();
 
-            if (nextCol && nextRow !== null) {
-                const nextInput = document.querySelector(`input[data-row="${nextRow}"][data-col="${nextCol}"]`);
-                if (nextInput) {
-                    nextInput.focus();
-                    // Прокручиваем к нужной строке
-                    const container = document.getElementById('memoryContainer');
-                    const rowTop = nextRow * ROW_HEIGHT;
-                    if (rowTop < container.scrollTop || rowTop > container.scrollTop + container.clientHeight) {
-                        container.scrollTop = Math.max(0, rowTop - container.clientHeight / 2);
-                    }
-                }
-            }
-        });
+      if (nextCol && nextRow !== null) {
+        const nextInput = document.querySelector(`input[data-row="${nextRow}"][data-col="${nextCol}"]`);
+        if (nextInput) {
+          nextInput.focus();
+          // Прокручиваем к нужной строке
+          const container = document.getElementById('memoryContainer');
+          const rowTop = nextRow * ROW_HEIGHT;
+          if (rowTop < container.scrollTop || rowTop > container.scrollTop + container.clientHeight) {
+            container.scrollTop = Math.max(0, rowTop - container.clientHeight / 2);
+          }
+        }
+      }
     });
+  });
 
-    // Создаем ячейки и добавляем элементы
-    const valCell = document.createElement("td");
-    const cmdCell = document.createElement("td");
-    valCell.appendChild(valInput);
-    cmdCell.appendChild(cmdInput);
+  // Создаем ячейки и добавляем элементы
+  const valCell = document.createElement("td");
+  const cmdCell = document.createElement("td");
+  valCell.appendChild(valInput);
+  cmdCell.appendChild(cmdInput);
 
-    row.appendChild(addrCell);
-    row.appendChild(valCell);
-    row.appendChild(cmdCell);
+  row.appendChild(addrCell);
+  row.appendChild(valCell);
+  row.appendChild(cmdCell);
 
-    // Применяем сохраненное состояние, если есть
+  // Применяем сохраненное состояние, если есть
   const state1 = cpu.rowStates[rowIndex];
   if (state1) {
     if (state1.highlighted) {
@@ -640,11 +640,11 @@ cmdInput.addEventListener("input", (e) => {
     }
   }
 
-    return row;
+  return row;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    initVirtualTable();
+  initVirtualTable();
 });
 function refreshVisibleRows() {
   const container = document.getElementById('memoryContainer');
@@ -654,26 +654,26 @@ function refreshVisibleRows() {
 }
 
 function saveRowState(rowIndex, valValue, cmdValue, options = {}) {
-    cpu.rowStates[rowIndex] = cpu.rowStates[rowIndex] || {};
-    cpu.rowStates[rowIndex].valInputValue = valValue || "00";
-    cpu.rowStates[rowIndex].cmdInputValue = cmdValue || "NOP";
-    
-    if (options) {
-        cpu.rowStates[rowIndex].readonly = options.readonly || false;
-        cpu.rowStates[rowIndex].owner = options.owner || null;
-    }
+  cpu.rowStates[rowIndex] = cpu.rowStates[rowIndex] || {};
+  cpu.rowStates[rowIndex].valInputValue = valValue || "00";
+  cpu.rowStates[rowIndex].cmdInputValue = cmdValue || "NOP";
+
+  if (options) {
+    cpu.rowStates[rowIndex].readonly = options.readonly || false;
+    cpu.rowStates[rowIndex].owner = options.owner || null;
+  }
 }
 
 function updateTableRow(address) {
   const row = tableBody.querySelector(`tr[data-row="${address}"]`);
   if (!row) return;
-  
+
   const valInput = row.querySelector('input[data-col="val"]');
   if (valInput) {
     const memoryValue = cpu.readMemory(address);
     valInput.value = toHex(memoryValue, 2);
   }
-  
+
   // Также обновим команду, если нужно
   const cmdInput = row.querySelector('input[data-col="cmd"]');
   if (cmdInput) {
@@ -688,113 +688,113 @@ function updateTableRow(address) {
 const searchInput = document.querySelector('.searchPC input[type="text"]');
 
 // Разрешаем ввод только hex-символов (0-9, A-F)
-searchInput.addEventListener('input', function(e) {
-    this.value = this.value.toUpperCase().replace(/[^0-9A-F]/g, '');
+searchInput.addEventListener('input', function (e) {
+  this.value = this.value.toUpperCase().replace(/[^0-9A-F]/g, '');
 });
 
 // Обработчик нажатия клавиши в поле поиска
-searchInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        const searchValue = this.value.trim();
-        if (!searchValue) return;
-        
-        try {
-            // Парсим hex-значение
-            const address = parseInt(searchValue, 16);
-            
-            if (isNaN(address)) {
-                throw new Error('Invalid hex number');
-            }
-            
-            // Ограничиваем адрес 16-битным диапазоном
-            const clampedAddress = Math.max(0, Math.min(0xFFFF, address));
-            
-            // Прокручиваем к адресу
-            scrollToAddress(clampedAddress);
-            
-            // Фокусируемся на поле значения
-            setTimeout(() => {
-                const row = tableBody.querySelector(`tr[data-row="${clampedAddress}"]`);
-                if (row) {
-                    const valInput = row.querySelector('input[data-col="val"]');
-                    if (valInput) {
-                        valInput.focus();
-                        valInput.select();
-                    }
-                }
-            }, 500);
-            
-        } catch (error) {
-            alert('Некорректный адрес! Введите hex-значение от 0000 до FFFF');
-            console.error('Invalid address input:', error);
+searchInput.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') {
+    const searchValue = this.value.trim();
+    if (!searchValue) return;
+
+    try {
+      // Парсим hex-значение
+      const address = parseInt(searchValue, 16);
+
+      if (isNaN(address)) {
+        throw new Error('Invalid hex number');
+      }
+
+      // Ограничиваем адрес 16-битным диапазоном
+      const clampedAddress = Math.max(0, Math.min(0xFFFF, address));
+
+      // Прокручиваем к адресу
+      scrollToAddress(clampedAddress);
+
+      // Фокусируемся на поле значения
+      setTimeout(() => {
+        const row = tableBody.querySelector(`tr[data-row="${clampedAddress}"]`);
+        if (row) {
+          const valInput = row.querySelector('input[data-col="val"]');
+          if (valInput) {
+            valInput.focus();
+            valInput.select();
+          }
         }
+      }, 500);
+
+    } catch (error) {
+      alert('Некорректный адрес! Введите hex-значение от 0000 до FFFF');
+      console.error('Invalid address input:', error);
     }
+  }
 });
 
 function scrollToAddress(address) {
-    const container = document.getElementById('memoryContainer');
-    const rowHeight = ROW_HEIGHT;
-    const targetPosition = address * rowHeight;
-    
-    // Рендерим строки вокруг целевого адреса
-    renderRowsAround(address);
-    
-    // Плавная прокрутка
-    container.scrollTo({
-        top: targetPosition - container.clientHeight / 3,
-        behavior: 'smooth'
-    });
-    
-    // Подсвечиваем строку
-    highlightRow(address);
+  const container = document.getElementById('memoryContainer');
+  const rowHeight = ROW_HEIGHT;
+  const targetPosition = address * rowHeight;
+
+  // Рендерим строки вокруг целевого адреса
+  renderRowsAround(address);
+
+  // Плавная прокрутка
+  container.scrollTo({
+    top: targetPosition - container.clientHeight / 3,
+    behavior: 'smooth'
+  });
+
+  // Подсвечиваем строку
+  highlightRow(address);
 }
 
 function renderRowsAround(centerAddress) {
-    const container = document.getElementById('memoryContainer');
-    const tableBody = document.getElementById('memoryTableBody');
-    
-    const visibleStart = Math.max(0, centerAddress - BUFFER_ROWS * 2);
-    const visibleEnd = Math.min(totalRows, centerAddress + BUFFER_ROWS * 2);
-    
-    // Удаляем только те строки, которые далеко от целевого адреса
-    const existingRows = tableBody.querySelectorAll('.virtual-row');
-    existingRows.forEach(row => {
-        const rowIndex = parseInt(row.dataset.row);
-        if (rowIndex < visibleStart || rowIndex > visibleEnd) {
-            saveRowStateBeforeRemove(rowIndex, row);
-            row.remove();
-        }
-    });
-    
-    // Добавляем недостающие строки
-    for (let i = visibleStart; i < visibleEnd; i++) {
-        if (!tableBody.querySelector(`tr[data-row="${i}"]`)) {
-            const row = createTableRow(i);
-            row.style.position = 'absolute';
-            row.style.top = `${i * ROW_HEIGHT}px`;
-            tableBody.appendChild(row);
-            restoreRowState(i, row);
-        }
+  const container = document.getElementById('memoryContainer');
+  const tableBody = document.getElementById('memoryTableBody');
+
+  const visibleStart = Math.max(0, centerAddress - BUFFER_ROWS * 2);
+  const visibleEnd = Math.min(totalRows, centerAddress + BUFFER_ROWS * 2);
+
+  // Удаляем только те строки, которые далеко от целевого адреса
+  const existingRows = tableBody.querySelectorAll('.virtual-row');
+  existingRows.forEach(row => {
+    const rowIndex = parseInt(row.dataset.row);
+    if (rowIndex < visibleStart || rowIndex > visibleEnd) {
+      saveRowStateBeforeRemove(rowIndex, row);
+      row.remove();
     }
+  });
+
+  // Добавляем недостающие строки
+  for (let i = visibleStart; i < visibleEnd; i++) {
+    if (!tableBody.querySelector(`tr[data-row="${i}"]`)) {
+      const row = createTableRow(i);
+      row.style.position = 'absolute';
+      row.style.top = `${i * ROW_HEIGHT}px`;
+      tableBody.appendChild(row);
+      restoreRowState(i, row);
+    }
+  }
 }
 
 function highlightRow(address) {
-    // Убираем предыдущую подсветку
-    const prevHighlighted = tableBody.querySelector('.highlighted-search');
-    if (prevHighlighted) {
-        prevHighlighted.classList.remove('highlighted-search');
-    }
-    
-    // Находим нужную строку
-    const row = tableBody.querySelector(`tr[data-row="${address}"]`);
-    if (row) {
-        row.classList.add('highlighted-search');
-        
-        // Через 2 секунды убираем подсветку
-        setTimeout(() => {
-            row.classList.remove('highlighted-search');
-        }, 2000);
-    }
+  // Убираем предыдущую подсветку
+  const prevHighlighted = tableBody.querySelector('.highlighted-search');
+  if (prevHighlighted) {
+    prevHighlighted.classList.remove('highlighted-search');
+  }
+
+  // Находим нужную строку
+  const row = tableBody.querySelector(`tr[data-row="${address}"]`);
+  if (row) {
+    row.classList.add('highlighted-search');
+
+    // Через 2 секунды убираем подсветку
+    setTimeout(() => {
+      row.classList.remove('highlighted-search');
+    }, 2000);
+  }
 }
 
 // В начале файла добавим переменную для хранения текущего такта

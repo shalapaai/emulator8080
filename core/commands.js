@@ -1,14 +1,14 @@
 cpu.setHaltCallback(() => {
-  return confirm("Процессор остановлен командой HLT.\nПродолжить выполнение?");
+    return confirm("Процессор остановлен командой HLT.\nПродолжить выполнение?");
 });
 
-let previousRegisters = {...cpu.registers};
-let previousFlags = {...cpu.flags};
+let previousRegisters = { ...cpu.registers };
+let previousFlags = { ...cpu.flags };
 let previousBuffers = {
-  bufReg1: cpu.bufReg1,
-  bufReg2: cpu.bufReg2,
-  adrBuf: 0,
-  dataBuf: 0
+    bufReg1: cpu.bufReg1,
+    bufReg2: cpu.bufReg2,
+    adrBuf: 0,
+    dataBuf: 0
 };
 
 const resetCompliting = document.querySelector("#resetCompliting");
@@ -24,9 +24,9 @@ const adrBuf = document.querySelector("#adrBuf");
 const dataBuf = document.querySelector("#dataBuf");
 
 cpu.onPCChange = (newPC) => {
-  if (programCounter) {
-    programCounter.textContent = toHex(newPC, 4);
-  }
+    if (programCounter) {
+        programCounter.textContent = toHex(newPC, 4);
+    }
 };
 
 resetCompliting.addEventListener("click", () => {
@@ -36,17 +36,17 @@ resetCompliting.addEventListener("click", () => {
     resetExecutionState();
     cpu.setPC(0);
     cpu.setSP(0xFFFF); // Устанавливаем начальное значение SP
-    
+
     // Обновляем отображение регистров и буферов
     programCounter.textContent = "0000"; // PC в формате 0000
     stackPointer.textContent = "FFFF";   // SP в формате FFFF
-    
+
     document.querySelector("#regBuf1").textContent = '00';
     document.querySelector("#regBuf2").textContent = '00';
     document.querySelector("#adrBuf").textContent = '0000';
     document.querySelector("#dataBuf").textContent = '00';
     updateCycleDisplay(0);
-    
+
     // Сбрасываем подсветку поиска
     const highlighted = tableBody.querySelector('.highlighted-search');
     if (highlighted) {
@@ -58,26 +58,26 @@ function getCommandLengthForAddress(address) {
     const opcode = cpu.readMemory(address);
     const mnemonic = reverseOpcodeMap[toHex(opcode, 2)] || "";
     const command = mnemonic.split(" ")[0];
-    
+
     // Специальные случаи для команд, которые могут быть ошибочно интерпретированы
     if (command === "NOP" && opcode !== 0x00) {
         return 1; // Неизвестные команды считаем однобайтовыми
     }
-    
+
     if (commands8BitTail.includes(command)) return 2;
     if (commands16BitTail.includes(command)) return 3;
     return 1;
 }
 
 function getFullCommandHex(address) {
-  let hexParts = [];
-  const commandLength = getCommandLengthForAddress(address);
-  
-  for (let i = 0; i < commandLength; i++) {
-    hexParts.push(toHex(cpu.readMemory(address + i), 2));
-  }
-  
-  return hexParts.join(" ");
+    let hexParts = [];
+    const commandLength = getCommandLengthForAddress(address);
+
+    for (let i = 0; i < commandLength; i++) {
+        hexParts.push(toHex(cpu.readMemory(address + i), 2));
+    }
+
+    return hexParts.join(" ");
 }
 
 // -------------------------------
@@ -103,16 +103,16 @@ function resetExecutionState() {
         nextCommandRow: 0,
         isExecuting: false
     };
-    
+
     // Снимаем подсветку со всех строк
     tableBody.querySelectorAll(".highlighted-command, .highlighted-argument").forEach(row => {
         row.classList.remove("highlighted-command", "highlighted-argument");
     });
-    
+
     currentCommandHex.textContent = "-";
     currentCommandText.textContent = "-";
     updateCycleDisplay(0);
-    
+
     // Очищаем подсвеченные состояния в rowStates
     for (const row in cpu.rowStates) {
         if (cpu.rowStates[row]) {
@@ -132,7 +132,7 @@ function getCommandBytes(row, length) {
 function updateProgramCounter(row) {
     cpu.setPC(row);
     programCounter.textContent = toHex(row, 4);
-    
+
     const rowElement = tableBody.querySelector(`tr[data-row="${row}"]`);
     if (rowElement) {
         rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -152,16 +152,16 @@ function updateDataBuffer(hexValue) {
 // Функция определения длины команды
 function getCommandLength(commandText) {
     if (!commandText) return 1;
-    
+
     const parts = commandText.split(" ");
     const command = parts[0];
-    
+
     if (commands8BitTail.includes(command)) {
         return 2; // Команда + 1 байт данных
     } else if (commands16BitTail.includes(command)) {
         return 3; // Команда + 2 байта данных
     }
-    
+
     return 1; // Обычная 1-байтовая команда
 }
 
@@ -191,11 +191,11 @@ function executeCommandToCompletion() {
     }
     const totalCycles = getTotalCyclesForCommand(executionState.commandLength);
     // В цикле выполнения тактов:
-  while (executionState.currentCycle > 0 && executionState.currentCycle <= totalCycles) {
-    updateCycleDisplay(executionState.currentCycle);
-    executeCycle();
-  }
-    
+    while (executionState.currentCycle > 0 && executionState.currentCycle <= totalCycles) {
+        updateCycleDisplay(executionState.currentCycle);
+        executeCycle();
+    }
+
     if (executionState.currentCycle === 0) {
         // Находим следующую команду, читая прямо из памяти CPU
         let foundRow = -1;
@@ -206,9 +206,9 @@ function executeCommandToCompletion() {
                 break;
             }
         }
-        
+
         executionState.currentCommandRow = foundRow;
-        
+
         // Получаем информацию о команде из памяти CPU
         if (foundRow !== -1) {
             const opcode = cpu.readMemory(foundRow);
@@ -216,26 +216,26 @@ function executeCommandToCompletion() {
             executionState.commandText = reverseOpcodeMap[executionState.commandHex] || "NOP";
             executionState.commandLength = getCommandLengthForAddress(foundRow);
         }
-        
+
         executionState.currentCycle = 1;
     }
-    
+
     // Получаем байты команды
     const commandBytes = getCommandBytes(executionState.currentCommandRow, executionState.commandLength);
-    
+
     // Проверяем, является ли команда специальной
     if (isSpecialCommand(commandBytes[0])) {
         // Для специальных команд выполняем все циклы сразу
         const opcode = commandBytes[0];
         const specialCommand = SpecialCommands[opcode];
-        
+
         // Выполняем все циклы команды
         for (let cycle = cpu.currentCycle; cycle <= specialCommand.cycles; cycle++) {
             cpu.currentCycle = cycle;
             executeSpecialCommand(cpu, commandBytes);
             updateUIFromCPU();
         }
-        
+
         // Завершаем выполнение команды
         executionState.nextCommandRow = executionState.currentCommandRow + executionState.commandLength;
         executionState.currentCycle = 0;
@@ -244,12 +244,12 @@ function executeCommandToCompletion() {
     } else {
         // Стандартная обработка команды
         const totalCycles = getTotalCyclesForCommand(executionState.commandLength);
-        
+
         // Выполняем все такты до завершения команды
         while (executionState.currentCycle > 0 && executionState.currentCycle <= totalCycles) {
             executeCycle();
         }
-        
+
         executionState.isExecuting = false;
     }
 }
@@ -261,7 +261,7 @@ commandComplete.addEventListener("click", () => {
 });
 
 function getTotalCyclesForCommand(commandLength) {
-    switch(commandLength) {
+    switch (commandLength) {
         case 1: return 5;  // 5 такта для 1-байтовой команды
         case 2: return 7;  // 7 тактов для команды с 1 аргументом
         case 3: return 10; // 10 тактов для команды с 2 аргументами
@@ -272,14 +272,14 @@ function getTotalCyclesForCommand(commandLength) {
 // Обработчик кнопки выполнения такта
 cycleComplete.addEventListener("click", () => {
     if (executionState.isExecuting) return;
-    
+
     // Если выполнение еще не начато, находим первую команду
     if (executionState.currentCycle === 0) {
         const foundRow = findNextCommand(executionState.nextCommandRow);
-        
+
         executionState.currentCommandRow = foundRow;
         executionState.currentCycle = 1;
-        
+
         // Получаем информацию о команде
         const rowElement = tableBody.querySelector(`tr[data-row="${foundRow}"]`);
         if (rowElement) {
@@ -290,7 +290,7 @@ cycleComplete.addEventListener("click", () => {
             executionState.commandLength = getCommandLength(executionState.commandText);
         }
     }
-    
+
     // Выполняем один такт
     executeCycle();
 });
@@ -303,21 +303,21 @@ function executeCurrentCommand(isPartialExecution = false) {
     // Выполняем команду
     cpu.executeCommand(commandBytes, isPartialExecution);
     updateUIFromCPU();
-    
+
     executionState.nextCommandRow = cpu.registers.PC;
 }
 
 // В функции getNextCommandAddress добавим проверку на специальные команды
 function getNextCommandAddress(row, commandLength) {
     const opcode = cpu.readMemory(row - 1);
-    
+
     // Для команд перехода используем текущий PC процессора
     if (isJumpOpcode(opcode) || isSpecialCommand(opcode)) {
         // Для специальных команд возвращаем PC, для остальных - row + длина
         console.log(cpu.registers.PC);
         return cpu.registers.PC;
     }
-    
+
     // Для обычных команд: текущий адрес + длина команды
     return row + commandLength;
 }
@@ -338,7 +338,7 @@ function isArgumentRow(rowIndex) {
     }
 
     // Для 3-байтовых команд (например, LXI)
-    if (commands16BitTail.includes(command) && commandLength === 3 && 
+    if (commands16BitTail.includes(command) && commandLength === 3 &&
         (rowIndex === lastCommandRow + 1 || rowIndex === lastCommandRow + 2)) {
         return true;
     }
@@ -364,38 +364,38 @@ function executeCycle() {
 
     const { currentCycle, currentCommandRow, commandLength } = executionState;
 
-    
+
     // 1. Обработка подсветки
     handleHighlighting(currentCycle, currentCommandRow, commandLength);
 
     // 2. Получаем байты команды
     const commandBytes = getCommandBytes(currentCommandRow, commandLength);
-    
+
     // Обновляем UI на основе данных из памяти
     if (currentCycle === 4) {
         const fullHex = commandBytes.map(b => toHex(b, 2)).join(' ');
         currentCommandHex.textContent = fullHex;
         currentCommandText.textContent = executionState.commandText;
     }
-    
+
     // 3. Проверяем, является ли команда специальной
     if (isSpecialCommand(commandBytes[0])) {
         const opcode = commandBytes[0];
         const specialCommand = SpecialCommands[opcode];
-        
+
         // Обновляем UI перед выполнением команды
         updateProgramCounter(executionState.nextCommandRow);
         // updateAddressBuffer(currentCommandRow);
         // updateDataBuffer(toHex(commandBytes[0], 2));
         // currentCommandHex.textContent = `Рег. команд: ${toHex(commandBytes[0], 2)}`;
         // currentCommandText.textContent = `Д/Ш команд: ${getCommandText(commandBytes[0])}`;
-        
+
         // Выполняем специальную команду
         const finished = executeSpecialCommand(cpu, commandBytes);
-        
+
         // Обновляем UI после выполнения команды
         updateUIFromCPU();
-        
+
         // Если команда завершена
         if (finished) {
             executionState.nextCommandRow = currentCommandRow + commandLength;
@@ -448,13 +448,13 @@ function handleCycle4(row) {
 // function handleCycle5(row, length) {
 //     if (length === 1) {
 //         const opcode = parseInt(document.querySelector(`input[data-row="${row}"][data-col="val"]`)?.value || "00", 16);
-        
+
 //         updateBuffersForOpcode(opcode);
 //         console.log(cpu.registers.PC);
 //         executeCurrentCommand();
 
 //         updateCycleDisplay(5);
-        
+
 //         executionState.nextCommandRow = cpu.registers.PC;
 //         executionState.currentCycle = 0;
 //         executionState.currentCommandRow = -1;
@@ -490,15 +490,15 @@ function handleCycle6(row) {
 //     const argInput = document.querySelector(`input[data-row="${row + 1}"][data-col="val"]`);
 //     const argValue = parseInt(argInput?.value || "00", 16);
 //     updateDataBuffer(argInput?.value || "00");
-    
+
 //     if (length === 2) {
 //         const opcode = parseInt(document.querySelector(`input[data-row="${row}"][data-col="val"]`)?.value || "00", 16);
-        
+
 //         // Для команд с непосредственным операндом обновляем буферы
 //         if (shouldUpdateBuffersForImmediateOpcode(opcode)) {
 //             updateBuffersForImmediateOpcode(opcode, argValue);
 //         }
-        
+
 //         executeCurrentCommand();
 
 //         updateCycleDisplay(7);
@@ -516,7 +516,7 @@ function handleCycle7(row, length) {
     const argInput = document.querySelector(`input[data-row="${row + 1}"][data-col="val"]`);
     const argValue = parseInt(argInput?.value || "00", 16);
     updateDataBuffer(argInput?.value || "00");
-    
+
     if (length === 2) {
         const opcode = parseInt(document.querySelector(`input[data-row="${row}"][data-col="val"]`)?.value || "00", 16);
         if (shouldUpdateBuffersForImmediateOpcode(opcode)) {
@@ -557,7 +557,7 @@ function handleCycle9(row) {
 //     } else {
 //         executionState.nextCommandRow = cpu.registers.PC + 1;
 //     }
-    
+
 //     executionState.currentCycle = 0;
 //     executionState.currentCommandRow = -1;
 // }
@@ -591,14 +591,14 @@ function updateBuffersForOpcode(opcode) {
         0xB8: 'B', 0xB9: 'C', 0xBA: 'D', 0xBB: 'E',
         0xBC: 'H', 0xBD: 'L', 0xBF: 'A'
     };
-    
+
     const regName = regMap[opcode];
     if (regName) {
         // Для всех арифметических/логических команд:
         // BufReg1 = аккумулятор (A)
         // BufReg2 = второй операнд (регистр или значение из памяти)
         cpu.setBufReg1(cpu.registers.A);
-        
+
         if (regName === 'M') {
             // Для операций с памятью (M)
             const addr = (cpu.registers.H << 8) | cpu.registers.L;
@@ -633,12 +633,12 @@ function shouldUpdateBuffersForOpcode(opcode) {
         0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAF,
         0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB7,
         0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBF,
-        
+
         // Команды с памятью (M)
         0x86, 0x8E, 0x96, 0x9E, // ADD M, ADC M, SUB M, SBB M
         0xA6, 0xAE, 0xB6, 0xBE  // ANA M, XRA M, ORA M, CMP M
     ];
-    
+
     return bufferUpdateOpcodes.includes(opcode);
 }
 
@@ -661,7 +661,7 @@ function updateBuffersForOpcode(opcode) {
         0xB8: 'B', 0xB9: 'C', 0xBA: 'D', 0xBB: 'E',
         0xBC: 'H', 0xBD: 'L', 0xBF: 'A'
     };
-    
+
     const regName = regMap[opcode];
     if (regName) {
         cpu.setBufReg1(cpu.registers.A);
@@ -681,7 +681,7 @@ function shouldUpdateBuffersForImmediateOpcode(opcode) {
         0xF6, // ORI
         0xFE  // CPI
     ];
-    
+
     return immediateOpcodes.includes(opcode);
 }
 
@@ -720,7 +720,7 @@ function handleHighlighting(currentCycle, currentCommandRow, commandLength) {
 function getHighlightTarget(currentCycle, currentCommandRow, commandLength) {
     if (currentCycle >= 1 && currentCycle <= 4) {
         return { row: currentCommandRow, isArgument: false };
-    } 
+    }
     else if (currentCycle >= 5) {
         const argNumber = Math.floor((currentCycle - 5) / 3);
         if (argNumber < commandLength - 1) {
@@ -751,39 +751,39 @@ function updateUIFromCPU() {
 
     for (const [reg, element] of Object.entries(registerElements)) {
         if (element && cpu.registers[reg] !== undefined) {
-        const currentValue = cpu.registers[reg];
-        const prevValue = previousRegisters[reg];
-        
-        if (currentValue !== prevValue) {
-            element.textContent = toHex(currentValue, 2);
-            element.classList.add('changed-value');
-        }
+            const currentValue = cpu.registers[reg];
+            const prevValue = previousRegisters[reg];
+
+            if (currentValue !== prevValue) {
+                element.textContent = toHex(currentValue, 2);
+                element.classList.add('changed-value');
+            }
         }
     }
 
     if (stackPointer) {
         const currentSP = cpu.registers.SP;
         if (currentSP !== previousRegisters.SP) {
-        stackPointer.textContent = toHex(currentSP, 4);
-        stackPointer.classList.add('changed-value');
+            stackPointer.textContent = toHex(currentSP, 4);
+            stackPointer.classList.add('changed-value');
         }
     }
-    
+
     if (programCounter) {
         const currentPC = cpu.registers.PC;
         if (currentPC !== previousRegisters.PC) {
-        programCounter.textContent = toHex(currentPC, 4);
-        programCounter.classList.add('changed-value');
+            programCounter.textContent = toHex(currentPC, 4);
+            programCounter.classList.add('changed-value');
         }
     }
 
     // Обновляем флаги (лампочки)
     const flagElements = document.querySelectorAll('.flag');
-    
+
     flagElements.forEach(flagElement => {
         const flagNameElement = flagElement.querySelector('.flag-name');
         const lampElement = flagElement.querySelector('.lamp');
-        
+
         if (flagNameElement && lampElement) {
             const flagName = flagNameElement.getAttribute('data-flag');
             if (flagName && cpu.flags[flagName] !== undefined) {
@@ -804,7 +804,7 @@ function updateUIFromCPU() {
         regBuf1.textContent = toHex(cpu.bufReg1, 2);
         regBuf1.classList.add('changed-value');
     }
-    
+
     if (cpu.bufReg2 !== previousBuffers.bufReg2) {
         regBuf2.textContent = toHex(cpu.bufReg2, 2);
         regBuf2.classList.add('changed-value');
@@ -813,11 +813,11 @@ function updateUIFromCPU() {
     // Подсвечиваем измененные буферы адреса и данных
     const currentAdrBuf = parseInt(adrBuf.textContent, 16) || 0;
     const currentDataBuf = parseInt(dataBuf.textContent, 16) || 0;
-    
+
     if (currentAdrBuf !== previousBuffers.adrBuf) {
         adrBuf.classList.add('changed-value');
     }
-    
+
     if (currentDataBuf !== previousBuffers.dataBuf) {
         dataBuf.classList.add('changed-value');
     }
@@ -826,8 +826,8 @@ function updateUIFromCPU() {
     updateCycleDisplay(cpu.currentCycle);
 
     // Сохраняем текущие значения для следующего сравнения
-    previousRegisters = {...cpu.registers};
-    previousFlags = {...cpu.flags};
+    previousRegisters = { ...cpu.registers };
+    previousFlags = { ...cpu.flags };
     previousBuffers = {
         bufReg1: cpu.bufReg1,
         bufReg2: cpu.bufReg2,
