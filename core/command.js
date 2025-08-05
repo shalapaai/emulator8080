@@ -237,7 +237,9 @@ function executeCommandToCompletion() {
         }
 
         // Завершаем выполнение команды
+        console.log(executionState.nextCommandRow);
         executionState.nextCommandRow = executionState.currentCommandRow + executionState.commandLength;
+        console.log(executionState.nextCommandRow);
         executionState.currentCycle = 0;
         cpu.currentCycle = 1;
         executionState.isExecuting = false;
@@ -312,9 +314,8 @@ function getNextCommandAddress(row, commandLength) {
     const opcode = cpu.readMemory(row - 1);
 
     // Для команд перехода используем текущий PC процессора
-    if (isJumpOpcode(opcode) || isSpecialCommand(opcode)) {
+    if (isJumpOpcode(opcode)) {
         // Для специальных команд возвращаем PC, для остальных - row + длина
-        console.log(cpu.registers.PC);
         return cpu.registers.PC;
     }
 
