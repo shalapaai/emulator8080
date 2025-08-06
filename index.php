@@ -530,7 +530,7 @@
 
   <script src="./core/opcode_map.js" defer></script>
   <script src="./core/cpu.js" defer></script>
-  <script src="./core/main.js" defer></script>
+  <script src="./core/mains.js" defer></script>
   <script src="./core/command.js" defer></script>
   <script src="./core/special_command.js" defer></script>
   <script src="./core/modal_window.js" defer></script>

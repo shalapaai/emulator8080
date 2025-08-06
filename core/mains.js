@@ -42,8 +42,14 @@ function createInput(row, col, maxLength = 16) {
   return input;
 }
 
+let suppressEvents = false;
+
 // Устанавливает значение в ячейку
 function setCellValue(row, col, text) {
+  if (suppressEvents) return;
+  suppressEvents = true;
+
+  console.log(row, col, text);
   const selector = `input[data-row="${row}"][data-col="${col}"]`;
   const input = document.querySelector(selector);
   if (input && input.value !== text) {
@@ -54,7 +60,6 @@ function setCellValue(row, col, text) {
       const bytes = text.split(/\s+/);
       bytes.forEach((byte, i) => {
         if (byte.length === 2) {
-          console.log(text);
           const value = parseInt(byte, 16);
           cpu.writeMemory(row + i, value);
         }
@@ -62,6 +67,7 @@ function setCellValue(row, col, text) {
     }
     input.dispatchEvent(new Event("input"));
   }
+  suppressEvents = false;
 }
 
 // Проверяет валидность аргумента (2 символа HEX)
@@ -202,13 +208,13 @@ function unmarkOwnedRows(ownerIndex) {
     const valInput = row.querySelector('input[data-col="val"]');
     const cmdInput = row.querySelector('input[data-col="cmd"]');
     if (valInput) {
-      valInput.value = "00";
+      // valInput.value = "00";
       valInput.readOnly = false;
       valInput.tabIndex = 0;
-      cpu.writeMemory(idx, 0x00);   // сброс памяти
+      // cpu.writeMemory(idx, 0x00);   // сброс памяти
     }
     if (cmdInput) {
-      cmdInput.value = "NOP";
+      // cmdInput.value = "NOP";
       cmdInput.readOnly = false;
       cmdInput.tabIndex = 0;
     }
@@ -216,8 +222,8 @@ function unmarkOwnedRows(ownerIndex) {
     if (cpu.rowStates[idx]) {
       cpu.rowStates[idx].readonly = false;
       cpu.rowStates[idx].owner = null;
-      cpu.rowStates[idx].valInputValue = "00";
-      cpu.rowStates[idx].cmdInputValue = "NOP";
+      // cpu.rowStates[idx].valInputValue = "00";
+      // cpu.rowStates[idx].cmdInputValue = "NOP";
     }
   });
 }
@@ -341,7 +347,7 @@ function renderVisibleRows() {
   }
 }
 
-// Функция создания строки (аналогична вашей, но для одной строки)
+// Функция создания строки
 function createTableRow(rowIndex) {
   const row = document.createElement("tr");
   row.className = "virtual-row";
@@ -492,6 +498,7 @@ function createTableRow(rowIndex) {
 
     // Проверяем, не является ли текущая строка readonly
     if (cpu.rowStates[row]?.readonly) {
+      console.log(1);
       return; // Не обрабатываем ввод для readonly строк
     }
 
@@ -509,6 +516,7 @@ function createTableRow(rowIndex) {
 
     const mviMatch = inputText.match(/^MVI\s+([A-Z]),([0-9A-F]{2})$/i);
     if (mviMatch) {
+      console.log(2);
       const fullMnemonic = `MVI ${mviMatch[1].toUpperCase()},d8`;
       const code = opcodeMap[fullMnemonic];
       if (code) {
@@ -524,8 +532,10 @@ function createTableRow(rowIndex) {
     }
 
     if (commands8BitTail.includes(command) && data?.length === 2) {
+      console.log(3);
       const code = opcodeMap[`${command} d8`];
       if (code) {
+        console.log(4);
         setCellValue(row, "val", code);
         setCellValue(row + 1, "val", data);
 
@@ -539,6 +549,7 @@ function createTableRow(rowIndex) {
 
     const lxiMatch = inputText.match(/^(\w+)\s+([A-Z]{1,2}),(\w{4})$/i);
     if (lxiMatch) {
+      console.log(5);
       const fullMnemonic = `${lxiMatch[1].toUpperCase()} ${lxiMatch[2].toUpperCase()},d16`;
       const code = opcodeMap[fullMnemonic];
       const data = lxiMatch[3].toUpperCase();
@@ -556,19 +567,28 @@ function createTableRow(rowIndex) {
       }
     }
 
-    if (commands16BitTail.includes(command) && data?.length === 4) {
-      const code = opcodeMap[`${command} a16`];
+    if (commands16BitTail.includes(command) && data && data.length === 4) {
+    const hi = data.slice(0, 2);
+    const lo = data.slice(2, 4);
+    
+    if (validateArg(hi) && validateArg(lo)) {
+      const fullMnemonic = `${command} a16`;
+      const code = opcodeMap[fullMnemonic];
+      
       if (code) {
         setCellValue(row, "val", code);
-        setCellValue(row + 1, "val", data.slice(2, 4));
-        setCellValue(row + 2, "val", data.slice(0, 2));
-
+        setCellValue(row + 1, "val", lo); // Младший байт
+        setCellValue(row + 2, "val", hi); // Старший байт
+        
+        
         markRowReadonly(row + 1, row);
         markRowReadonly(row + 2, row);
-
-        cmdInput.value = `${command} ${data}`;
+        
+        cmdInput.value = `${command} ${hi}${lo}`;
+        return;
       }
     }
+  }
 
     saveRowState(row, valInput.value, cmdInput.value, { readonly: valInput.readOnly, owner: cpu.rowStates[row]?.owner });
     valInput.value = "";
