@@ -127,6 +127,7 @@ function restoreRowState(rowIndex, rowElement) {
 
 // Помечает строку как read-only
 function markRowReadonly(rowIndex, ownerIndex) {
+  console.log(ownerIndex);
   const row = tableBody.querySelector(`tr[data-row="${rowIndex}"]`);
   if (!row) return;
 
@@ -347,6 +348,8 @@ function renderVisibleRows() {
   }
 }
 
+let updatingFromCmd = false;
+
 // Функция создания строки
 function createTableRow(rowIndex) {
   const row = document.createElement("tr");
@@ -414,6 +417,7 @@ function createTableRow(rowIndex) {
   // Обработчик ввода для поля значения
   // Обработчик ввода для поля значения
   valInput.addEventListener("input", () => {
+    if (suppressEvents || updatingFromCmd) return; // Игнорируем если обновление из cmdInput
     const row = parseInt(valInput.dataset.row, 10);
 
     // Сбрасываем все состояния для этой строки и следующих
@@ -494,7 +498,7 @@ function createTableRow(rowIndex) {
 
   // Обработчик ввода для поля команды
   cmdInput.addEventListener("input", (e) => {
-    const row = parseInt(e.target.dataset.row, 10);
+    const row = parseInt(cmdInput.dataset.row, 10);
 
     // Проверяем, не является ли текущая строка readonly
     if (cpu.rowStates[row]?.readonly) {
@@ -502,8 +506,8 @@ function createTableRow(rowIndex) {
       return; // Не обрабатываем ввод для readonly строк
     }
 
+    updatingFromCmd = true; // Устанавливаем флаг
     const inputText = cmdInput.value.replace(/,\s+/g, ",").trim();
-
     unclaimIfOccupied(row);
     unmarkOwnedRows(row);
 
@@ -589,6 +593,26 @@ function createTableRow(rowIndex) {
       }
     }
   }
+
+  if (opcode) {
+    setCellValue(row, "val", opcode);
+    // Дополнительные обновления через setCellValue
+    if (data) setCellValue(row + 1, "val", data);
+    if (hi && lo) {
+      setCellValue(row + 1, "val", lo);
+      setCellValue(row + 2, "val", hi);
+    }
+  }
+
+  // Сохраняем состояние только если команда распознана
+  if (opcode) {
+    saveRowState(row, valInput.value, cmdInput.value, { 
+      readonly: valInput.readOnly, 
+      owner: cpu.rowStates[row]?.owner 
+    });
+  }
+
+  updatingFromCmd = false; // Сбрасываем флаг
 
     saveRowState(row, valInput.value, cmdInput.value, { readonly: valInput.readOnly, owner: cpu.rowStates[row]?.owner });
     valInput.value = "";
