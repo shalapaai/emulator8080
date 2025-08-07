@@ -756,7 +756,6 @@ function updateUIFromCPU() {
         dataBuf.classList.add('changed-value');
     }
 
-
     // Сохраняем текущие значения для следующего сравнения
     previousRegisters = { ...cpu.registers };
     previousFlags = { ...cpu.flags };

@@ -6,7 +6,7 @@ const commands16BitTail = [];
 
 (async function initOpcodeMaps() {
     try {
-        const response = await fetch('./backend/commands.txt');
+        const response = await fetch('./commands.txt');
         if (!response.ok) throw new Error(`HTTP error ${response.status}`);
         const text = await response.text();
 
