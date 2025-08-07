@@ -24,7 +24,7 @@ const SpecialCommands = {
           break;
               
         case 5:
-          // Загрузка младшего байта регистровой пары в буферный регистр 1 (C для DAD B)
+          // Загрузка младшего байта регистровой пары в буферный регистр 1
           if (rp === 0) cpu.setBufReg1(cpu.registers.C);      // DAD B
           else if (rp === 1) cpu.setBufReg1(cpu.registers.E); // DAD D
           else if (rp === 2) cpu.setBufReg1(cpu.registers.L); // DAD H
@@ -37,14 +37,14 @@ const SpecialCommands = {
           break;
               
         case 7:
-          // Сложение младших байтов: L = L + src_low (C для DAD B)
+          // Сложение младших байтов: L = L + src_low
           const sumLow = cpu.bufReg2 + cpu.bufReg1;
           cpu.registers.L = sumLow & 0xFF;
           cpu.flags.C = sumLow > 0xFF ? 1 : 0;
           break;
               
         case 8:
-          // Загрузка старшего байта регистровой пары в буферный регистр 1 (B для DAD B)
+          // Загрузка старшего байта регистровой пары в буферный регистр 1
           if (rp === 0) cpu.setBufReg1(cpu.registers.B);      // DAD B
           else if (rp === 1) cpu.setBufReg1(cpu.registers.D); // DAD D
           else if (rp === 2) cpu.setBufReg1(cpu.registers.H); // DAD H
@@ -57,7 +57,7 @@ const SpecialCommands = {
           break;
               
         case 10:
-          // Сложение старших байтов: H = H + src_high + carry (B для DAD B)
+          // Сложение старших байтов: H = H + src_high + carry
           const sumHigh = cpu.bufReg2 + cpu.bufReg1 + (cpu.flags.C ? 1 : 0);
           cpu.registers.H = sumHigh & 0xFF;
           cpu.flags.C = sumHigh > 0xFF ? 1 : cpu.flags.C;
@@ -167,6 +167,47 @@ const SpecialCommands = {
         case 7:
           // Записываем A по адресу из DE
           const address = (cpu.registers.D << 8) | cpu.registers.E;
+          cpu.writeMemory(address, cpu.registers.A);
+          break;
+      }
+    }
+  },
+  0x02: { // STAX B
+    cycles: 7,
+    execute: (cpu, bytes) => {
+      switch(cpu.currentCycle) {
+        case 1:
+          handleHighlighting(executionState.currentCycle, executionState.currentCommandRow, executionState.commandLength);
+          cpu.setPC(executionState.nextCommandRow);
+          break;
+        
+        case 2:
+          updateAddressBuffer(cpu.registers.PC);
+          break;
+            
+        case 3:
+          updateDataBuffer(toHex(bytes[0], 2));
+          break;
+            
+        case 4:
+          currentCommandHex.textContent = toHex(bytes[0], 2);
+          currentCommandText.textContent = getCommandText(bytes[0]);
+          break;
+              
+        case 5:
+          // Формируем адрес из пары BC
+          const addrBC = (cpu.registers.B << 8) | cpu.registers.C;
+          updateAddressBuffer(addrBC);
+          break;
+              
+        case 6:
+          // Помещаем значение A в буфер данных
+          updateDataBuffer(toHex(cpu.registers.A, 2));
+          break;
+              
+        case 7:
+          // Записываем A по адресу из BC
+          const address = (cpu.registers.B << 8) | cpu.registers.C;
           cpu.writeMemory(address, cpu.registers.A);
           break;
       }
@@ -301,7 +342,7 @@ const SpecialCommands = {
           break;
               
         case 8:
-          // Инкремент PC и обновление UI
+          // Инкремент PC
           executionState.nextCommandRow++;
           updateProgramCounter(executionState.nextCommandRow);
           break;
@@ -354,7 +395,7 @@ const SpecialCommands = {
           break;
 
         case 5:
-          // Формируем адрес из регистра B и C (BC)
+          // Формируем адрес из регистра B и C 
           const addrBC = (cpu.registers.B << 8) | cpu.registers.C;
           updateAddressBuffer(addrBC);
           break;
@@ -392,7 +433,7 @@ const SpecialCommands = {
           break;
 
         case 5:
-          // Формируем адрес из регистра D и E (DE)
+          // Формируем адрес из регистра D и E 
           const addrDE = (cpu.registers.D << 8) | cpu.registers.E;
           updateAddressBuffer(addrDE);
           break;
@@ -470,7 +511,7 @@ const SpecialCommands = {
           break;
 
         case 13:
-          // Инкремент WZ (Z + 1, при переполнении увеличиваем W)
+          // Инкремент WZ 
           cpu.registers.Z = (cpu.registers.Z + 1) & 0xFF;
           if (cpu.registers.Z === 0) {
             cpu.registers.W = (cpu.registers.W + 1) & 0xFF;
@@ -667,7 +708,7 @@ const SpecialCommands = {
           break;
             
         case 14:
-          // Декремент SP (хотя команда обычно не меняет SP, но по вашей схеме)
+          // Декремент SP 
           cpu.registers.SP = (cpu.registers.SP - 1) & 0xFFFF;
           break;
             

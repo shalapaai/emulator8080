@@ -196,7 +196,7 @@ class CPU8080 {
       operand: operand,
       checkC: result > 0xFF
     });
-    // this.registers.PC += 1;
+    
   }
 
   handleADC(operand) {
@@ -208,7 +208,7 @@ class CPU8080 {
       operand: operand,
       checkC: result > 0xFF
     });
-    // this.registers.PC += 1;
+    
   }
 
   handleSUB(operand) {
@@ -220,7 +220,7 @@ class CPU8080 {
       operand: operand,
       checkC: result < 0
     });
-    // this.registers.PC += 1;
+    
   }
 
   handleSBB(operand) {
@@ -232,7 +232,7 @@ class CPU8080 {
       operand: operand,
       checkC: result < 0
     });
-    // this.registers.PC += 1;
+    
   }
 
   handleLogical(opcode, operand) {
@@ -271,7 +271,7 @@ class CPU8080 {
         this.flags.C = 0;  // XOR всегда сбрасывает Carry
         break;
     }
-    // this.registers.PC += 1;
+    
   }
 
   handleCMP(operand) {
@@ -282,7 +282,7 @@ class CPU8080 {
       operand: operand,
       checkC: result < 0
     });
-    // this.registers.PC += 1;
+    
   }
 
   handleMOV(opcode) {
@@ -342,7 +342,7 @@ class CPU8080 {
       originalA: value - 1, // предыдущее значение
       operand: 1
     });
-    // this.registers.PC += 1;
+    
   }
 
   handleDCR(reg) {
@@ -370,7 +370,7 @@ class CPU8080 {
       originalA: value + 1, // предыдущее значение
       operand: 1
     });
-    // this.registers.PC += 1;
+    
   }
 
   handleINX(opcode) {
@@ -400,7 +400,7 @@ class CPU8080 {
         this.registers.SP = (this.registers.SP + 1) & 0xFFFF;
         break;
     }
-    // this.registers.PC += 1;
+    
   }
 
   handleDCX(opcode) {
@@ -430,7 +430,7 @@ class CPU8080 {
         this.registers.SP = (this.registers.SP - 1) & 0xFFFF;
         break;
     }
-    // this.registers.PC += 1;
+    
   }
 
   handleRLC() {
@@ -438,7 +438,7 @@ class CPU8080 {
     const newCarry = (a >> 7) & 1; // Сохраняем старший бит
     this.registers.A = ((a << 1) | newCarry) & 0xFF; // Сдвигаем влево и добавляем бит
     this.flags.C = newCarry; // Устанавливаем флаг переноса
-    // this.registers.PC += 1;
+    
   }
 
   handleRRC() {
@@ -446,7 +446,7 @@ class CPU8080 {
     const newCarry = a & 1; // Сохраняем младший бит
     this.registers.A = ((a >> 1) | (newCarry << 7)) & 0xFF; // Сдвигаем вправо и добавляем бит
     this.flags.C = newCarry; // Устанавливаем флаг переноса
-    // this.registers.PC += 1;
+    
   }
 
   handleRAL() {
@@ -454,7 +454,7 @@ class CPU8080 {
     const newCarry = (a >> 7) & 1; // Сохраняем старший бит
     this.registers.A = ((a << 1) | this.flags.C) & 0xFF; // Сдвигаем влево + старый C
     this.flags.C = newCarry; // Обновляем флаг переноса
-    // this.registers.PC += 1;
+    
   }
 
   handleRAR() {
@@ -462,7 +462,7 @@ class CPU8080 {
     const newCarry = a & 1; // Сохраняем младший бит
     this.registers.A = ((a >> 1) | (this.flags.C << 7)) & 0xFF; // Сдвигаем вправо + старый C
     this.flags.C = newCarry; // Обновляем флаг переноса
-    // this.registers.PC += 1;
+    
   }
 
   handleDAA() {
@@ -572,7 +572,7 @@ class CPU8080 {
 
     switch (opcode) {
       case 0x00: // NOP
-        // this.registers.PC += 1;
+        
         break;
 
       case 0x76: // HLT
@@ -668,47 +668,39 @@ class CPU8080 {
       case 0x70: case 0x71: case 0x72: case 0x73: case 0x74: case 0x75: case 0x76: case 0x77:
       case 0x78: case 0x79: case 0x7A: case 0x7B: case 0x7C: case 0x7D: case 0x7E: case 0x7F:
         this.handleMOV(opcode);
-        // this.registers.PC += 1;
+        
         break;
 
       case 0xC6: // ADI d8
-        this.handleADD(arg1);
-        // this.registers.PC += 2; 
+        this.handleADD(arg1); 
         break;
 
       case 0xCE: // ACI d8
         this.handleADC(arg1);
-        // this.registers.PC += 2;
         break;
 
       case 0xD6: // SUI d8
         this.handleSUB(arg1);
-        // this.registers.PC += 2;
         break;
 
       case 0xDE: // SBI d8
         this.handleSBB(arg1);
-        // this.registers.PC += 2;
         break;
 
       case 0xE6: // ANI d8
         this.handleLogical(opcode, arg1);
-        // this.registers.PC += 2;
         break;
 
       case 0xEE: // XRI d8
         this.handleLogical(opcode, arg1);
-        // this.registers.PC += 2;
         break;
 
       case 0xF6: // ORI d8
-        this.handleLogical(opcode, arg1);
-        // this.registers.PC += 2; 
+        this.handleLogical(opcode, arg1); 
         break;
 
       case 0xFE: // CPI d8
         this.handleCMP(arg1);
-        // this.registers.PC += 2;
         break;
 
       // INR r (0x04, 0x0C, 0x14, 0x1C, 0x24, 0x2C, 0x34, 0x3C)
@@ -1000,14 +992,6 @@ class CPU8080 {
         }
         break;
     }
-    // Автоматическое увеличение PC после выполнения команды
-    // if (!this.isHalted && !isPartialExecution && 
-    //     !jumpOpcodes.includes(opcode) && 
-    //     !isSpecialCommand(opcode)) {
-    //     // Увеличиваем PC на длину команды
-    //     this.registers.PC += bytes.length;
-    // }
-
     return true;
 
   }

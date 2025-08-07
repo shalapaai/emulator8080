@@ -4,10 +4,11 @@
 <head>
   <meta charset="UTF-8">
   <title>Intel 8080</title>
-  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/styles.css">
 </head>
 
 <body>
+  <img class="arrow-image" src="arrows.png">
   <div class="container">
     <div class="left-container">
       <span class="border-label-left">Состояния</span>
@@ -194,11 +195,9 @@
     </div>
   </div>
 
-  <img class="arrow-image" src="arrows.png">
-
   <div id="modalOverlay" class="modal-overlay opcode-table_hidden">
     <div class="modal-content">
-      <table id="opcodeTable" class="opcode-table"><!--opcode-table_hidden -->
+      <table id="opcodeTable" class="opcode-table">
         <tbody>
           <tr class="inf tr1">
             <td class="withborder inf">&nbsp;</td>
@@ -530,9 +529,9 @@
 
   <script src="./core/opcode_map.js" defer></script>
   <script src="./core/cpu.js" defer></script>
-  <script src="./core/mains.js" defer></script>
+  <script src="./core/main.js" defer></script>
   <script src="./core/command.js" defer></script>
-  <script src="./core/special_command.js" defer></script>
+  <script src="./core/special_commands.js" defer></script>
   <script src="./core/modal_window.js" defer></script>
 </body>
 

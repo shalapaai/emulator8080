@@ -401,44 +401,44 @@ td {
 }
 
 .flag {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 5px;
 }
 
 .flag-name {
-    margin-bottom: 5px;
-    font-size: 14px;
+  margin-bottom: 5px;
+  font-size: 14px;
 }
 
 .lamp {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #300;
-    border: 2px solid #500;
-    position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #300;
+  border: 2px solid #500;
+  position: relative;
 }
 
 .lamp.on {
-    background: #f00;
-    box-shadow: 0 0 10px #f00;
+  background: #f00;
+  box-shadow: 0 0 10px #f00;
 }
 
 .lamp::after {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 0, 0, 0.5);
-    opacity: 0;
-    transition: opacity 0.3s;
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 .lamp.on::after {
-    opacity: 1;
+  opacity: 1;
 }
